@@ -61,7 +61,7 @@ public class Vsm {
                 }
 
                 //all_term_tf_idf: simpan seluruh term yang ada di korpus, beserta tf-idfnya
-                for (Map.Entry<String, Double> entry : vocab_idf.entrySet()) { //iterasi seluruh key, value pada vocab_idf
+                for(Map.Entry<String, Double> entry : vocab_idf.entrySet()) { //iterasi seluruh key, value pada vocab_idf
                     String curTerm = entry.getKey();
                     Double curIdf = entry.getValue();
                     Integer tf = tf_perDocs.get(curTerm); //ambil tf curTerm di dokumen ke-i, null jika curTerm tidak ada di dokumen ke-i
@@ -76,15 +76,35 @@ public class Vsm {
 
                     double tfidf = weighted_tf * curIdf; //hitung tf-idf
                     all_term_tfidf.put(curTerm, tfidf); //simpan pasangan term dan tfidf
+                    
                 }
 
+                all_term_tfidf = normalisasi(all_term_tfidf); //normalisasi
                 String docName = reader.document(i).get("filename"); //nama dokumen
                 doc_term_tfidf.put(docName, all_term_tfidf); //simpan seluruh pasangan term dan tfidf pada key docName
             }
-
+            
             System.out.println(doc_term_tfidf.get(reader.document(0).get("filename")).size());
         }catch(IOException e){
             e.printStackTrace();
         }
+    }
+
+    //fungsi untuk normalisasi
+    private static Map<String, Double> normalisasi(Map<String, Double> doc){
+        Double norm = 0.0; //panjang vektor
+        for(Map.Entry<String, Double> entry : doc.entrySet()){
+            Double tfidf = entry.getValue(); //nilai tf idf
+            norm += tfidf * tfidf; //hitung panjang vektor doc untuk normalisasi
+        }
+        norm = Math.sqrt(norm);
+
+        Map<String, Double> normalized_doc = new HashMap<>(); //untuk menyimpan hasil normalisasi
+        for(Map.Entry<String, Double> entry : doc.entrySet()){
+            String term = entry.getKey(); //term
+            Double tfidf = entry.getValue(); //nilai tf idf
+            normalized_doc.put(term, tfidf/norm); //simpan hasil normalisasi
+        }
+        return normalized_doc;
     }
 }
