@@ -3,8 +3,11 @@ package com.example.lucene_search;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.Terms;
+import org.apache.lucene.index.TermsEnum;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.FSDirectory;
+import org.apache.lucene.util.BytesRef;
 
 import java.nio.file.Paths;
 import java.util.List;
@@ -50,6 +53,23 @@ public class ReadIndexDocs {
             // List<IndexableField> fields = doc.getFields();
             // for (IndexableField field : fields) {
             //     System.out.println(" - " + field.name());
+            // }
+
+            // int docID = scoreDoc.doc; 
+            // Terms terms = reader.getTermVector(docID, "tf"); //ambil term vector dari field "tf"
+
+            // if(terms != null){
+            //     TermsEnum termsEnum = terms.iterator(); //untuk iterasi tiap term
+            //     BytesRef term;
+
+            //     System.out.println("=== Term Vector untuk dokumen " + docID + " ===");
+            //     while ((term = termsEnum.next()) != null) {
+            //         String termText = term.utf8ToString(); //ubah term ke string
+            //         long freq = termsEnum.totalTermFreq(); // frekuensi term dalam dokumen
+            //         System.out.println(termText + " (freq: " + freq + ")");
+            //     }
+            // }else {
+            //     System.out.println("Tidak ada term vector yang disimpan dalam dokumen ini.");
             // }
         }
 
