@@ -54,7 +54,16 @@ public class AppLucene {
                             doc.add(new StringField("filename", file.getName(), Field.Store.YES));
                             doc.add(new StringField("category", category, Field.Store.YES));
 
+// <<<<<<< bm25
                             // masukan data ke docs lucene
+// =======
+                            //menyimpan term frequency dari isi content
+                            FieldType fieldType = new FieldType(TextField.TYPE_STORED);
+                            fieldType.setStoreTermVectors(true);
+                            doc.add(new Field("tf", content, fieldType));
+
+                            //masukan data ke docs lucene
+// >>>>>>> main
                             writer.addDocument(doc);
                             System.out.println("Indexed: " + category + "/" + file.getName());
                         }
