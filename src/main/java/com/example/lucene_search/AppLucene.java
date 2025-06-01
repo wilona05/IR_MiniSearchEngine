@@ -58,7 +58,7 @@ public class AppLucene {
                             // masukan data ke docs lucene
 // =======
                             //menyimpan term frequency dari isi content
-                            FieldType fieldType = new FieldType(TextField.TYPE_STORED);
+                            // FieldType fieldType = new FieldType(TextField.TYPE_STORED);
                             fieldType.setStoreTermVectors(true);
                             doc.add(new Field("tf", content, fieldType));
 

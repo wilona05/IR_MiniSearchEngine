@@ -149,7 +149,7 @@ public class Vsm {
                 String fileName = reader.document(idxDoc).get("filename"); //nama dokumen
                 String category = reader.document(idxDoc).get("category"); //kategori dokumen
                 String content = reader.document(idxDoc).get("content"); //kategori dokumen
-                System.out.printf("%d skor: %.4f | judul: $s | dokumen: %s | kategori: %s\n", i+1, score, title, fileName, category);
+                System.out.printf("%d. Skor: %.4f | Judul: %s | Dokumen: %s | Kategori: %s\n", i + 1, score, title, fileName, category);
                 System.out.println("Isi (ringkas): " +
                         (content.length() > 100 ? content.substring(0, 100) + "..." : content));
                 System.out.println("--------------------------------------");
