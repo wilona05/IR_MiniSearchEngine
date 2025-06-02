@@ -100,6 +100,7 @@ public class Vsm {
             for(Map.Entry<String, Integer> entry : query_term_tf.entrySet()){ 
                 String curTerm =entry.getKey(); //term
                 Double idfTermText = vocab_idf.get(curTerm); //idf dari curTerm
+                // System.out.println(idfTermText);
                 if(idfTermText != null){ //term ada di korpus
                     Integer tf = entry.getValue(); //nilai tf 
                     //sublinear tf, weighted_tf=0 jika tf=0, selain itu weighted_tf=1+log(tf)
@@ -109,6 +110,7 @@ public class Vsm {
                     }
     
                     double tfidf = weighted_tf * idfTermText; //hitung tf-idf
+                    // System.out.println(tfidf);
                     tfidf_query.put(curTerm, tfidf); //simpan pasangan term dan tf-idf
                     // System.out.println(curTerm);
                     // System.out.println(vocab_idf.get(curTerm));
@@ -117,6 +119,7 @@ public class Vsm {
                 }
             }
             tfidf_query = normalisasi(tfidf_query); //normalisasi
+            // System.out.println(tfidf_query);
 
             //PEMERINGKATAN DOKUMEN (COSINE SIMILARITY)-----------------------------------------------------
             Map<Integer, Double> docScores = new HashMap<>(); //untuk menyimpan skor dokumen
@@ -131,7 +134,7 @@ public class Vsm {
                         score += tfidf_q*tfidf_d; 
                     }
                 }
-                docScores.put(i, score); //simpan index dokumen dan skornya
+                if(score>0) docScores.put(i, score); //simpan index dokumen dan skornya (hanya yang relevan)
             }
 
             //urutkan skor dari yang tertinggi
@@ -140,8 +143,9 @@ public class Vsm {
             // System.out.println(sortedDocs);
 
             //HASIL-----------------------------------------------------
-            System.out.println("Query: " + queryText);
-            System.out.println("Dokumen:");
+            System.out.println("--------------------------------------\n");
+            System.out.println("VSM ranking untuk query: " + queryText);
+            System.out.println("Total dokumen yang relevan: " + sortedDocs.size());
             for(int i=0; i<sortedDocs.size(); i++){
                 Integer idxDoc = sortedDocs.get(i).getKey(); //index dokumen
                 Double score = sortedDocs.get(i).getValue(); //skor dokumen

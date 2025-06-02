@@ -85,8 +85,9 @@ public class BM25 {
             sortedDocs.sort((a, b) -> Float.compare(b.getValue(), a.getValue()));
 
             // tampilkan hasilnya
-            System.out.println("BM25 Ranking : " + query);
-            System.out.println("Total documents ditemukan: " + docScores.size());
+            System.out.println("--------------------------------------\n");
+            System.out.println("BM25 ranking untuk query: " + query);
+            System.out.println("Total dokumen yang relevan: " + docScores.size());
 
             int rank = 1;
             for (Map.Entry<Integer, Float> entry : sortedDocs) {
