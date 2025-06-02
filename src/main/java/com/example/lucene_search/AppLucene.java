@@ -43,27 +43,25 @@ public class AppLucene {
                             // yang disimpan berupa judul dan konten
                             // beserta dengan nama file dan kategori(dari subfolder docs)
                             // .YES menyimpan data asli di index
+                            doc.add(new TextField("title", title, Field.Store.YES));
+                            doc.add(new TextField("content", content, Field.Store.YES));
+                            doc.add(new StringField("filename", file.getName(), Field.Store.YES));
+                            doc.add(new StringField("category", category, Field.Store.YES));
+
+                            //menyimpan term frequency dari isi content
+                            FieldType fieldType2 = new FieldType(TextField.TYPE_STORED);
+                            fieldType2.setStoreTermVectors(true);
+                            doc.add(new Field("tf", content, fieldType2));
+
+                            //untuk model bm
                             FieldType fieldType = new FieldType();
                             fieldType.setStored(true); // Menyimpan teks asli dalam indeks
                             fieldType.setTokenized(true); // Melakukan tokenisasi teks
                             fieldType.setIndexOptions(IndexOptions.DOCS_AND_FREQS); // Menyimpan frekuensi term
                             fieldType.setStoreTermVectors(true); // Memungkinkan pengambilan Term Vectors
-
-                            doc.add(new Field("title", title, fieldType));
-                            doc.add(new Field("content", content, fieldType));
-                            doc.add(new StringField("filename", file.getName(), Field.Store.YES));
-                            doc.add(new StringField("category", category, Field.Store.YES));
-
-// <<<<<<< bm25
-                            // masukan data ke docs lucene
-// =======
-                            //menyimpan term frequency dari isi content
-                            // FieldType fieldType = new FieldType(TextField.TYPE_STORED);
-                            fieldType.setStoreTermVectors(true);
-                            doc.add(new Field("tf", content, fieldType));
+                            doc.add(new Field("bm", content, fieldType));
 
                             //masukan data ke docs lucene
-// >>>>>>> main
                             writer.addDocument(doc);
                             System.out.println("Indexed: " + category + "/" + file.getName());
                         }

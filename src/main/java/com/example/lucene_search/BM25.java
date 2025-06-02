@@ -26,7 +26,7 @@ public class BM25 {
             DirectoryReader reader = DirectoryReader.open(FSDirectory.open(Paths.get("docs/index")));
             IndexSearcher searcher = new IndexSearcher(reader);
 
-            String field = "content";
+            String field = "bm";
             System.out.print("Masukan query pencarian: ");
             String query = sc.nextLine();
 
