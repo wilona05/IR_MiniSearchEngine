@@ -2,15 +2,21 @@ package com.example.lucene_search;
 
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.*;
+import org.apache.lucene.search.IndexSearcher;
+import org.apache.lucene.search.TermQuery;
+import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.store.FSDirectory;
 
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
 
+import org.apache.lucene.search.Query;
+import org.apache.lucene.search.ScoreDoc;
+
 public class BM25 {
 
-    static final float k1 = 1.5f;
+    static final float k = 1.5f;
     static final float b = 0.75f;
 
     public static void main(String[] args) {
@@ -29,6 +35,20 @@ public class BM25 {
             Map<Integer, Integer> docLengths = new HashMap<>(); // menyimpan panjang dokumen
             long totalLength = 0; // total panjang semua dokumen
             int totalDocsInCorpus = reader.maxDoc(); // jumlah dokumen yang ada di corpus
+
+            IndexSearcher searcher = new IndexSearcher(reader);
+
+            // menghitung banyak dokumen yang relevan untuk mengetahui nilai R
+            Set<Integer> validDocs = new HashSet<>();
+            for (String termText : terms) {
+                Query queryLucene = new TermQuery(new Term(field, termText));
+                TopDocs results = searcher.search(queryLucene, 30);
+                for (ScoreDoc scoreDoc : results.scoreDocs) {
+                    validDocs.add(scoreDoc.doc); // Menyimpan docID yang relevan
+                }
+            }
+
+            int R = validDocs.size();
 
             // hitung panjang seluruh dokumen di corpus
             for (int docId = 0; docId < totalDocsInCorpus; docId++) {
@@ -52,7 +72,26 @@ public class BM25 {
                 if (df == 0)
                     continue;
 
-                float idf = (float) Math.log(1 + (reader.maxDoc() - df + 0.5) / (df + 0.5)); // itung nilai idf
+                //float idf = (float) Math.log(1 + (reader.maxDoc() - df + 0.5) / (df + 0.5)); // itung nilai idf
+
+                long Nt = df; // jumlah dokumen yang mengandung term
+                long rt = 0; // jumlah dokumen relevan yang mengandung term
+
+                //loop untung menghitung jumlah dokumen yang dianggap relevan dengan kueri
+                for (int docId : validDocs) { // validDocs berisi dokumen relevan
+                    Terms termVector = reader.getTermVector(docId, field);
+                    if (termVector != null) {
+                        TermsEnum termsEnum = termVector.iterator();
+                        while (termsEnum.next() != null) {
+                            if (termsEnum.term().utf8ToString().equals(termText)) {
+                                rt++; // Menambah jumlah dokumen relevan yang mengandung term
+                            }
+                        }
+                    }
+                }
+
+                //itung nilai wt
+                float wt = (float) Math.log((rt + 0.5) * (totalDocsInCorpus - R + 1) / ((R + 1) * (Nt - rt + 0.5)));
 
                 // loop untuk menghitung skor BM25 setiap dokumen dalam validDocs
                 for (int docId : docLengths.keySet()) {
@@ -69,7 +108,7 @@ public class BM25 {
                                     int docLength = docLengths.getOrDefault(matchedDocId, 1); // ambil panjang dokumen
 
                                     // itung skor BM25
-                                    float score = idf * tf * (k1 + 1) / (tf + k1 * (1 - b + b * docLength / avgdl));
+                                    float score = wt * tf * (k + 1) / (tf + k * ((1 - b) + b * (docLength / avgdl)));
 
                                     // simpan skor dokumen
                                     docScores.put(matchedDocId, docScores.getOrDefault(matchedDocId, 0f) + score);
@@ -94,7 +133,8 @@ public class BM25 {
                 Document doc = reader.document(entry.getKey());
 
                 String content = doc.get("content");
-                String preview = (content != null && content.length() > 100) ? content.substring(0, 100) + "...": content;
+                String preview = (content != null && content.length() > 100) ? content.substring(0, 100) + "..."
+                        : content;
 
                 System.out.printf("%d. Score: %.4f | Judul: %s | Dokumen: %s | Kategori: %s\n",
                         rank++,
